@@ -136,6 +136,8 @@ public abstract class BaseBuildAction implements IObjectActionDelegate {
 	}
 	
 	private void setDefaultValues() {
+		if (file.getName().equals("feature.xml"))
+			return;
 		IProject project = file.getProject();
 		IFile generatedFile = (IFile) project.findMember("build.xml");
 		if (generatedFile == null)
