@@ -11,9 +11,6 @@
 package org.eclipse.pde.internal.ui.feature;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
@@ -32,30 +29,20 @@ public class BuildFeatureAction extends BaseBuildAction {
 		throws InvocationTargetException, CoreException {
 
 		FeatureBuildScriptGenerator generator = new FeatureBuildScriptGenerator();
-		
 		String location = file.getProject().getLocation().toOSString();
 		generator.setWorkingDirectory(location);
 		generator.setFeatureRootLocation(location);
-		generator.setDevEntries(new String[] { "bin" }); // FIXME: look at bug #5747
-		
-		ArrayList paths = new ArrayList();
+		generator.setDevEntries(new String[] { "bin" }); // FIXME: look at bug #5747		
+
 		IFeatureModel[] models = PDECore.getDefault().getWorkspaceModelManager().getWorkspaceFeatureModels();
 		for (int i = 0; i < models.length; i++) {
-			try {
-				paths.add(new URL("file:" + models[i].getInstallLocation() + Path.SEPARATOR + "feature.xml"));
-			} catch (MalformedURLException e1) {
-			}
-			if (models[i].getUnderlyingResource().equals(file))
+			if (models[i].getUnderlyingResource().equals(file)) {
 				model = models[i];
+				break;
+			}
 		}
-		
-		URL[] plugins = TargetPlatform.createPluginPath();
-		URL[] features = (URL[]) paths.toArray(new URL[paths.size()]);
-		URL[] all = new URL[plugins.length + paths.size()];
-		System.arraycopy(plugins, 0, all, 0, plugins.length);
-		System.arraycopy(features, 0, all, plugins.length, features.length);
-		
-		generator.setPluginPath(all);
+		generator.setPluginPath(TargetPlatform.createPluginPath());
+		FeatureBuildScriptGenerator.setConfigInfo(TargetPlatform.getOS()+","+TargetPlatform.getWS()+"," + TargetPlatform.getOSArch());
 
 		try {
 			generator.setFeature(model.getFeature().getId());
