@@ -12,6 +12,8 @@ package org.eclipse.pde.internal.ui.wizards.exports;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -102,7 +104,7 @@ public class FeatureExportWizard extends BaseExportWizard {
 				createProperties(destination, exportZip),
 				new SubProgressMonitor(monitor, 9));
 		} finally {
-			deleteBuildFiles(feature);
+			//deleteBuildFiles(feature);
 			monitor.done();
 		}
 	}
@@ -150,8 +152,6 @@ public class FeatureExportWizard extends BaseExportWizard {
 	private void makeScript(IFeatureModel model) throws CoreException {
 		FeatureBuildScriptGenerator generator = new ExportFeatureBuildScriptGenerator();
 
-		//generator.setBuildScriptName(MainPreferencePage.getBuildScriptName());
-		//generator.setScriptTargetLocation(model.getInstallLocation());
 		generator.setFeatureRootLocation(model.getInstallLocation());
 		generator.setWorkingDirectory(model.getInstallLocation());
 		
@@ -165,10 +165,27 @@ public class FeatureExportWizard extends BaseExportWizard {
 		}
 
 		generator.setAnalyseChildren(true);
-		generator.setPluginPath(TargetPlatform.createPluginPath());
-
+		generator.setPluginPath(getPaths());
+		FeatureBuildScriptGenerator.setConfigInfo(TargetPlatform.getOS()+","+TargetPlatform.getWS()+"," + TargetPlatform.getOSArch());
 		generator.setFeature(model.getFeature().getId());
 		generator.generate();
+	}
+	
+	private URL[] getPaths() throws CoreException {
+		ArrayList paths = new ArrayList();
+		IFeatureModel[] models = PDECore.getDefault().getWorkspaceModelManager().getWorkspaceFeatureModels();
+		for (int i = 0; i < models.length; i++) {
+			try {
+				paths.add(new URL("file:" + models[i].getInstallLocation() + Path.SEPARATOR + "feature.xml"));
+			} catch (MalformedURLException e1) {
+			}
+		}		
+		URL[] plugins = TargetPlatform.createPluginPath();
+		URL[] features = (URL[]) paths.toArray(new URL[paths.size()]);
+		URL[] all = new URL[plugins.length + paths.size()];
+		System.arraycopy(plugins, 0, all, 0, plugins.length);
+		System.arraycopy(features, 0, all, plugins.length, features.length);
+		return all;		
 	}
 	
 	protected String[] getExecutionTargets(boolean exportZip, boolean exportSource) {
