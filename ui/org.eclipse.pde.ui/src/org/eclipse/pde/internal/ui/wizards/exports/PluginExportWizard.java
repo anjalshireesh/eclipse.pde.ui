@@ -114,8 +114,6 @@ public class PluginExportWizard extends BaseExportWizard {
 		else
 			generator = new PluginBuildScriptGenerator();
 
-		//generator.setBuildScriptName(MainPreferencePage.getBuildScriptName());
-		//generator.setScriptTargetLocation(model.getInstallLocation());
 		generator.setWorkingDirectory(model.getInstallLocation());
 
 		IProject project = model.getUnderlyingResource().getProject();
