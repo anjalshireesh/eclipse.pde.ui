@@ -50,7 +50,7 @@ import org.eclipse.pde.core.plugin.IFragmentModel;
 import org.eclipse.pde.core.plugin.IPluginBase;
 import org.eclipse.pde.core.plugin.IPluginModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
-import org.eclipse.pde.internal.core.AbstractModel;
+import org.eclipse.pde.internal.core.AbstractNLModel;
 import org.eclipse.pde.internal.core.ICoreConstants;
 import org.eclipse.pde.internal.core.ModelEntry;
 import org.eclipse.pde.internal.core.NLResourceHelper;
@@ -820,8 +820,8 @@ public class BundleErrorReporter extends JarManifestErrorReporter {
 							severity,
 							PDEMarkerFactory.P_UNTRANSLATED_NODE, header.getName(),
 							PDEMarkerFactory.CAT_NLS); 
-				} else if (fModel instanceof AbstractModel) {
-					NLResourceHelper helper = ((AbstractModel)fModel).getNLResourceHelper();
+				} else if (fModel instanceof AbstractNLModel) {
+					NLResourceHelper helper = ((AbstractNLModel)fModel).getNLResourceHelper();
 					if (helper == null || !helper.resourceExists(value))
 						report(NLS.bind(PDECoreMessages.Builders_Manifest_key_not_found, 
 								value.substring(1)), getLine(header, value), severity,
