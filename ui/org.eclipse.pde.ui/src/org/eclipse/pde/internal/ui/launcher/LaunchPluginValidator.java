@@ -31,7 +31,7 @@ import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.SearchablePluginsManager;
-import org.eclipse.pde.internal.core.TargetPlatform;
+import org.eclipse.pde.internal.core.InternalTargetPlatform;
 import org.eclipse.pde.ui.launcher.IPDELauncherConstants;
 import org.eclipse.swt.widgets.Display;
 
@@ -76,10 +76,10 @@ public class LaunchPluginValidator {
 		}
 		
 		String version = configuration.getAttribute("pde.version", (String) null); //$NON-NLS-1$
-		boolean newApp = TargetPlatform.usesNewApplicationModel();
+		boolean newApp = InternalTargetPlatform.usesNewApplicationModel();
 		boolean upgrade = !"3.3".equals(version) && newApp; //$NON-NLS-1$
 		if (!upgrade)
-			upgrade = TargetPlatform.getTargetVersion() >= 3.2 && version == null; //$NON-NLS-1$
+			upgrade = InternalTargetPlatform.getTargetVersion() >= 3.2 && version == null; //$NON-NLS-1$
 		if (upgrade) {
 			wc.setAttribute("pde.version", newApp ? "3.3" : "3.2a"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			boolean usedefault = configuration.getAttribute(IPDELauncherConstants.USE_DEFAULT, true);
