@@ -31,6 +31,9 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -45,6 +48,8 @@ import org.eclipse.pde.api.tools.ui.internal.ApiUIPlugin;
 import org.eclipse.pde.api.tools.ui.internal.IApiToolsHelpContextIds;
 import org.eclipse.pde.api.tools.ui.internal.SWTFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -53,6 +58,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.PlatformUI;
@@ -217,6 +223,13 @@ public class ApiFiltersPropertyPage extends PropertyPage implements IWorkbenchPr
 		gd.widthHint = 275;
 		gd.heightHint = 300;
 		tree.setLayoutData(gd);
+		tree.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if(e.character == SWT.DEL && e.stateMask == 0) {
+					handleRemove((IStructuredSelection) fViewer.getSelection());
+				}
+			}
+		});
 		fViewer = new TreeViewer(tree);
 		fViewer.setAutoExpandLevel(2);
 		fViewer.setContentProvider(new TreeContentProvider());
@@ -256,12 +269,7 @@ public class ApiFiltersPropertyPage extends PropertyPage implements IWorkbenchPr
 		fRemoveButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				IStructuredSelection ss = (IStructuredSelection) fViewer.getSelection();
-				HashSet deletions = collectDeletions(ss);
-				if(deletions.size() > 0) {
-					fChangeset.addAll(deletions);
-					fViewer.remove(deletions.toArray());
-					fViewer.refresh();
-				}
+				handleRemove(ss);
 			}
 		});
 		fRemoveButton.setEnabled(false);
@@ -269,6 +277,92 @@ public class ApiFiltersPropertyPage extends PropertyPage implements IWorkbenchPr
 		return comp;
 	}	
 
+	/**
+	 * Performs the remove
+	 * @param selection
+	 */
+	private void handleRemove(IStructuredSelection selection) {
+		HashSet deletions = collectDeletions(selection);
+		if(deletions.size() > 0) {
+			fChangeset.addAll(deletions);
+			int[] indexes = getIndexes(selection);
+			fViewer.remove(deletions.toArray());
+			updateParents();
+			fViewer.refresh();
+			updateSelection(indexes);
+		}
+	}
+	
+	/**
+	 * Collects the indexes of the first item in the current selection
+	 * @param selection
+	 * @return an array of indexes (parent, child) of the first item in the current selection
+	 */
+	private int[] getIndexes(IStructuredSelection selection) {
+		int[] indexes = new int[] {0,0};
+		TreeSelection tsel = (TreeSelection) selection;
+		TreePath path = tsel.getPaths()[0];
+		TreeItem parent = (TreeItem) fViewer.testFindItem(path.getFirstSegment());
+		if(parent != null) {
+			Tree tree = fViewer.getTree();
+			//found parent
+			indexes[0] = tree.indexOf(parent);
+			TreeItem item = (TreeItem) fViewer.testFindItem(path.getLastSegment());
+			if(item != null) {
+				indexes[1] = parent.indexOf(item);
+			}
+		}
+		return indexes;
+	}
+	
+	/**
+	 * Updates the selection in the viewer based on the given indexes.
+	 * If there is no item to update at the given indexes then the next logical child is taken, else the parent
+	 * is selected, else no selection is made
+	 * @param indexes
+	 */
+	private void updateSelection(int[] indexes) {
+		Tree tree = fViewer.getTree();
+		TreeItem parent = null;
+		if(tree.getItemCount() == 0) {
+			return;
+		}
+		if(indexes[0] < tree.getItemCount()) {
+			TreeItem child = null;
+			parent = tree.getItem(indexes[0]);
+			int childcount = parent.getItemCount();
+			if(childcount < 1 || indexes[1] < 0) {
+				fViewer.setSelection(new StructuredSelection(parent.getData()));
+				return;
+			}
+			else if (indexes[1] < childcount){
+				child = parent.getItem(indexes[1]);
+			}
+			else {
+				child = parent.getItem(childcount-1);
+			}
+			fViewer.setSelection(new StructuredSelection(child.getData()));
+		}
+		else {
+			parent = tree.getItem(tree.getItemCount()-1);
+			fViewer.setSelection(new StructuredSelection(parent.getData()));
+		}
+	}
+	
+	/**
+	 * Cleans up empty parents once a deletion update has been done
+	 * for the parents that have incrementally had all their children removed
+	 */
+	private void updateParents() {
+		Tree tree = fViewer.getTree();
+		TreeItem[] items = tree.getItems();
+		for(int i = 0; i < items.length; i++) {
+			if(items[i].getItems().length < 1) {
+				fInputset.remove(items[i].getData());
+			}
+		}
+	}
+	
 	/**
 	 * Collects all of the elements to be deleted
 	 * @param selection
