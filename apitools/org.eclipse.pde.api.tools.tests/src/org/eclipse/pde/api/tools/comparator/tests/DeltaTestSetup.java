@@ -22,9 +22,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.pde.api.tools.internal.builder.BuilderMessages;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.comparator.ApiComparator;
 import org.eclipse.pde.api.tools.internal.provisional.comparator.IDelta;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.model.tests.TestSuiteHelper;
 
 public abstract class DeltaTestSetup extends TestCase {
@@ -114,8 +114,8 @@ public abstract class DeltaTestSetup extends TestCase {
 		}
 	}
 	
-	protected IApiProfile getBeforeState() {
-		IApiProfile state = null;
+	protected IApiBaseline getBeforeState() {
+		IApiBaseline state = null;
 		try {
 			state = TestSuiteHelper.createTestingProfile(getBaseLineFolder(BEFORE));
 		} catch (CoreException e) {
@@ -125,8 +125,8 @@ public abstract class DeltaTestSetup extends TestCase {
 		return state;
 	}
 	
-	protected IApiProfile getAfterState() {
-		IApiProfile state = null;
+	protected IApiBaseline getAfterState() {
+		IApiBaseline state = null;
 		try {
 			state = TestSuiteHelper.createTestingProfile(getBaseLineFolder(AFTER));
 		} catch (CoreException e) {

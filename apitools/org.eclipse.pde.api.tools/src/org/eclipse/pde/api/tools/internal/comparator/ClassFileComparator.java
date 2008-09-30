@@ -27,8 +27,6 @@ import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
 import org.eclipse.pde.api.tools.internal.provisional.IApiAnnotations;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
-import org.eclipse.pde.api.tools.internal.provisional.IApiDescription;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.IClassFile;
 import org.eclipse.pde.api.tools.internal.provisional.RestrictionModifiers;
 import org.eclipse.pde.api.tools.internal.provisional.VisibilityModifiers;
@@ -36,13 +34,15 @@ import org.eclipse.pde.api.tools.internal.provisional.comparator.ApiComparator;
 import org.eclipse.pde.api.tools.internal.provisional.comparator.DeltaVisitor;
 import org.eclipse.pde.api.tools.internal.provisional.comparator.IDelta;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IReferenceTypeDescriptor;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiDescription;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.util.Util;
 import org.objectweb.asm.signature.SignatureReader;
 
 import com.ibm.icu.text.MessageFormat;
 
 /**
- * Compares class files from the workspace to those in the default {@link IApiProfile}
+ * Compares class files from the workspace to those in the default {@link IApiBaseline}
  * 
  * @since 1.0.0
  */
@@ -73,7 +73,7 @@ public class ClassFileComparator {
 		DEBUG = debugValue || Util.DEBUG;
 	}
 
-	private boolean isCheckedException(IApiProfile profile, IApiComponent apiComponent, String exceptionName) {
+	private boolean isCheckedException(IApiBaseline profile, IApiComponent apiComponent, String exceptionName) {
 		if (profile == null) {
 			return true;
 		}
@@ -112,8 +112,8 @@ public class ClassFileComparator {
 		return true;
 	}
 
-	private IApiProfile apiProfile = null;
-	private IApiProfile apiProfile2 = null;
+	private IApiBaseline apiProfile = null;
+	private IApiBaseline apiProfile2 = null;
 
 	private IClassFile classFile = null;
 	
@@ -141,7 +141,7 @@ public class ClassFileComparator {
 	 * @param visibilityModifiers any modifiers from the class file
 	 * @throws CoreException if the contents of the specified class files cannot be acquired
 	 */
-	public ClassFileComparator(IClassFile classFile, IClassFile classFile2, IApiComponent component, IApiComponent component2, IApiProfile apiState, IApiProfile apiState2, int visibilityModifiers) throws CoreException {
+	public ClassFileComparator(IClassFile classFile, IClassFile classFile2, IApiComponent component, IApiComponent component2, IApiBaseline apiState, IApiBaseline apiState2, int visibilityModifiers) throws CoreException {
 		this.component = component;
 		this.component2 = component2;
 		this.descriptor1 = new TypeDescriptor(classFile.getContents());
@@ -163,7 +163,7 @@ public class ClassFileComparator {
 	 * @param visibilityModifiers any modifiers from the class file
 	 * @throws CoreException if the contents of the specified class file cannot be acquired
 	 */
-	public ClassFileComparator(TypeDescriptor typeDescriptor, IClassFile classFile2, IApiComponent component, IApiComponent component2, IApiProfile apiState, IApiProfile apiState2, int visibilityModifiers) throws CoreException {
+	public ClassFileComparator(TypeDescriptor typeDescriptor, IClassFile classFile2, IApiComponent component, IApiComponent component2, IApiBaseline apiState, IApiBaseline apiState2, int visibilityModifiers) throws CoreException {
 		this.component = component;
 		this.component2 = component2;
 		this.descriptor1 = typeDescriptor;
@@ -902,7 +902,7 @@ public class ClassFileComparator {
 	 * @param profile
 	 * @param set
 	 */
-	private void collectAllInterfaces(TypeDescriptor typeDescriptor, IApiComponent apiComponent, IApiProfile profile, Set set) {
+	private void collectAllInterfaces(TypeDescriptor typeDescriptor, IApiComponent apiComponent, IApiBaseline profile, Set set) {
 		Set interfaces = typeDescriptor.interfaces;
 		try {
 			IApiComponent sourceComponent = apiComponent;
@@ -2650,7 +2650,7 @@ public class ClassFileComparator {
 	 * @param profile
 	 * @return the complete super-interface set for the given descriptor, or <code>null</code>
 	 */
-	private Set getInterfacesSet(TypeDescriptor typeDescriptor, IApiComponent apiComponent, IApiProfile profile) {
+	private Set getInterfacesSet(TypeDescriptor typeDescriptor, IApiComponent apiComponent, IApiBaseline profile) {
 		HashSet set = new HashSet();
 		this.status = null;
 		collectAllInterfaces(typeDescriptor, apiComponent, profile, set);
@@ -2710,13 +2710,13 @@ public class ClassFileComparator {
 		signatureReader.accept(new SignatureDecoder(signatureDescriptor));
 		return signatureDescriptor;
 	}
-	private List getSuperclassList(TypeDescriptor typeDescriptor, IApiComponent apiComponent, IApiProfile profile) {
+	private List getSuperclassList(TypeDescriptor typeDescriptor, IApiComponent apiComponent, IApiBaseline profile) {
 		return getSuperclassList(typeDescriptor, apiComponent, profile, false);
 	}
-	private List getSuperclassList(TypeDescriptor typeDescriptor, IApiComponent apiComponent, IApiProfile profile, boolean includeObject) {
+	private List getSuperclassList(TypeDescriptor typeDescriptor, IApiComponent apiComponent, IApiBaseline profile, boolean includeObject) {
 		return getSuperclassList(typeDescriptor, apiComponent, profile, includeObject, false);
 	}
-	private List getSuperclassList(TypeDescriptor typeDescriptor, IApiComponent apiComponent, IApiProfile profile, boolean includeObject, boolean includePrivate) {
+	private List getSuperclassList(TypeDescriptor typeDescriptor, IApiComponent apiComponent, IApiBaseline profile, boolean includeObject, boolean includePrivate) {
 		TypeDescriptor descriptor = typeDescriptor;
 		this.status = null;
 		String superName = descriptor.superName;
@@ -3051,7 +3051,7 @@ public class ClassFileComparator {
 		return null;
 	}
 	
-	private LookupResult getType(String typeName, IApiComponent component, IApiProfile profile) throws CoreException {
+	private LookupResult getType(String typeName, IApiComponent component, IApiBaseline profile) throws CoreException {
 		IApiComponent sourceComponent = component;
 		String packageName = Util.getPackageName(typeName);
 		IApiComponent[] components = profile.resolvePackage(component, packageName);

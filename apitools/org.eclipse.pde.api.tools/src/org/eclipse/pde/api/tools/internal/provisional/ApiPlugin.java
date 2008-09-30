@@ -30,13 +30,13 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.pde.api.tools.internal.ApiDescriptionManager;
 import org.eclipse.pde.api.tools.internal.ApiFilterStore;
-import org.eclipse.pde.api.tools.internal.ApiProfile;
-import org.eclipse.pde.api.tools.internal.ApiProfileManager;
+import org.eclipse.pde.api.tools.internal.ApiBaselineManager;
 import org.eclipse.pde.api.tools.internal.JavadocTagManager;
 import org.eclipse.pde.api.tools.internal.PluginProjectApiComponent;
 import org.eclipse.pde.api.tools.internal.builder.ApiAnalysisBuilder;
 import org.eclipse.pde.api.tools.internal.comparator.ClassFileComparator;
 import org.eclipse.pde.api.tools.internal.descriptors.ElementDescriptorImpl;
+import org.eclipse.pde.api.tools.internal.model.ApiBaseline;
 import org.eclipse.pde.api.tools.internal.provisional.comparator.ApiComparator;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblemTypes;
 import org.eclipse.pde.api.tools.internal.provisional.scanner.TagScanner;
@@ -304,12 +304,12 @@ public class ApiPlugin extends Plugin implements ISaveParticipant {
 
 	/**
 	 * Returns the {@link IApiProfileManager}, allowing clients to add/remove and search
-	 * for {@link IApiProfile}s stored in the manager.
+	 * for {@link IApiBaseline}s stored in the manager.
 	 * 
 	 * @return the singleton instance of the {@link IApiProfileManager}
 	 */
 	public IApiProfileManager getApiProfileManager() {
-		return ApiProfileManager.getManager();
+		return ApiBaselineManager.getManager();
 	}
 	
 	/**
@@ -516,12 +516,12 @@ public class ApiPlugin extends Plugin implements ISaveParticipant {
 			
 			option = Platform.getDebugOption(API_PROFILE_MANAGER_DEBUG);
 			if(option != null) {
-				ApiProfileManager.setDebug(option.equalsIgnoreCase(TRUE));
+				ApiBaselineManager.setDebug(option.equalsIgnoreCase(TRUE));
 			}
 			
 			option = Platform.getDebugOption(API_PROFILE_DEBUG);
 			if(option != null) {
-				ApiProfile.setDebug(option.equalsIgnoreCase(TRUE));
+				ApiBaseline.setDebug(option.equalsIgnoreCase(TRUE));
 			}
 			option = Platform.getDebugOption(API_FILTER_STORE_DEBUG);
 			if(option != null) {

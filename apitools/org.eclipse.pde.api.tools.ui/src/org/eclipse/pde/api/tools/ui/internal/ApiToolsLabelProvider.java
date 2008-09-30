@@ -21,11 +21,11 @@ import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IElementDescriptor;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IMemberDescriptor;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IMethodDescriptor;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IReferenceTypeDescriptor;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.provisional.search.ILocation;
 import org.eclipse.pde.api.tools.ui.internal.wizards.ApiProfileWizardPage.EEEntry;
 import org.eclipse.swt.SWT;
@@ -46,7 +46,7 @@ import com.ibm.icu.text.MessageFormat;
 public class ApiToolsLabelProvider extends BaseLabelProvider implements ILabelProvider, IFontProvider {
 
 	/**
-	 * Font for the default {@link IApiProfile} 
+	 * Font for the default {@link IApiBaseline} 
 	 */
 	private Font font = null;
 	
@@ -77,7 +77,7 @@ public class ApiToolsLabelProvider extends BaseLabelProvider implements ILabelPr
 		if (element instanceof File) {
 			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
 		}
-		if(element instanceof IApiProfile) {
+		if(element instanceof IApiBaseline) {
 			return ApiUIPlugin.getSharedImage(IApiToolsConstants.IMG_OBJ_ECLIPSE_PROFILE);
 		}
 		if(element instanceof EEEntry) {
@@ -113,8 +113,8 @@ public class ApiToolsLabelProvider extends BaseLabelProvider implements ILabelPr
 				return ((File)element).getName();
 			}
 		}
-		if(element instanceof IApiProfile) {
-			IApiProfile profile  = (IApiProfile) element;
+		if(element instanceof IApiBaseline) {
+			IApiBaseline profile  = (IApiBaseline) element;
 			return profile.getName();
 		}
 		if(element instanceof EEEntry) {
@@ -141,14 +141,14 @@ public class ApiToolsLabelProvider extends BaseLabelProvider implements ILabelPr
 	}
 
 	/**
-	 * Returns if the specified {@link IApiProfile} is the default profile or not
+	 * Returns if the specified {@link IApiBaseline} is the default profile or not
 	 * @param element
 	 * @return if the profile is the default or not
 	 */
 	protected boolean isDefaultProfile(Object element) {
-		if(element instanceof IApiProfile) {
-			IApiProfile profile = (IApiProfile) element;
-			IApiProfile def = ApiPlugin.getDefault().getApiProfileManager().getDefaultApiProfile();
+		if(element instanceof IApiBaseline) {
+			IApiBaseline profile = (IApiBaseline) element;
+			IApiBaseline def = ApiPlugin.getDefault().getApiProfileManager().getDefaultApiProfile();
 			if(def != null) {
 				return profile.getName().equals(def.getName());
 			}

@@ -15,16 +15,17 @@ import java.io.InputStream;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.pde.api.tools.internal.ApiProfile;
-import org.eclipse.pde.api.tools.internal.ApiProfileManager;
+import org.eclipse.pde.api.tools.internal.ApiBaselineManager;
 import org.eclipse.pde.api.tools.internal.descriptors.PackageDescriptorImpl;
 import org.eclipse.pde.api.tools.internal.descriptors.ResourceDescriptorImpl;
+import org.eclipse.pde.api.tools.internal.model.ApiBaseline;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IElementDescriptor;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IFieldDescriptor;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IMethodDescriptor;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IPackageDescriptor;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IReferenceTypeDescriptor;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IResourceDescriptor;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.provisional.search.IApiSearchCriteria;
 import org.eclipse.pde.api.tools.internal.provisional.search.IApiSearchEngine;
 import org.eclipse.pde.api.tools.internal.provisional.search.IApiSearchScope;
@@ -54,8 +55,8 @@ public class Factory {
 	 *
 	 * @param name profile name
 	 */
-	public static IApiProfile newApiProfile(String name) {
-		return new ApiProfile(name);
+	public static IApiBaseline newApiProfile(String name) {
+		return new ApiBaseline(name);
 	}
 	
 	/**
@@ -71,8 +72,8 @@ public class Factory {
 	 * @return API profile
 	 * @throws CoreException if unable to create a new profile with the specified attributes 
 	 */
-	public static IApiProfile newApiProfile(String name, File eeDescription) throws CoreException {
-		return new ApiProfile(name, eeDescription);
+	public static IApiBaseline newApiProfile(String name, File eeDescription) throws CoreException {
+		return new ApiBaseline(name, eeDescription);
 	}
 	
 	/**
@@ -189,14 +190,14 @@ public class Factory {
 	/**
 	 * Creates and returns an API profile from the given input stream. The
 	 * contents of the stream must have been created with
-	 * {@link IApiProfile#writeProfileDescription(java.io.OutputStream)}.
+	 * {@link IApiBaseline#writeProfileDescription(java.io.OutputStream)}.
 	 * 
 	 * @param descriptionStream profile description
 	 * @return API profile
 	 * @exception CoreException if unable to create a profile from the stream
 	 */
-	public static IApiProfile createProfile(InputStream descriptionStream) throws CoreException {
-		return ApiProfileManager.restoreProfile(descriptionStream);
+	public static IApiBaseline createProfile(InputStream descriptionStream) throws CoreException {
+		return ApiBaselineManager.restoreProfile(descriptionStream);
 	}
 	
 	/**

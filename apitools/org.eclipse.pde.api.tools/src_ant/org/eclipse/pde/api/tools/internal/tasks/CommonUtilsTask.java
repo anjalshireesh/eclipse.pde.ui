@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.util.Util;
 
 /**
@@ -55,9 +55,9 @@ public abstract class CommonUtilsTask extends Task {
 		return new File(new File(new File(dir, profileInstallName), ECLIPSE_FOLDER_NAME), PLUGINS_FOLDER_NAME).getAbsolutePath();
 	}
 
-	public static IApiProfile createProfile(String profileName, String fileName, String eeFileLocation) {
+	public static IApiBaseline createProfile(String profileName, String fileName, String eeFileLocation) {
 		try {
-			IApiProfile baseline = null;
+			IApiBaseline baseline = null;
 			if (ApiPlugin.isRunningInFramework()) {
 				baseline = Factory.newApiProfile(profileName);
 			} else if (eeFileLocation != null) {

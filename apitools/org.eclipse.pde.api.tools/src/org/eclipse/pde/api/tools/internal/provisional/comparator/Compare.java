@@ -19,11 +19,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.pde.api.tools.internal.ApiProfileManager;
+import org.eclipse.pde.api.tools.internal.ApiBaselineManager;
 import org.eclipse.pde.api.tools.internal.comparator.DeltaXmlVisitor;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.VisibilityModifiers;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 
 /**
  * Java application to compare two API profiles
@@ -143,10 +143,10 @@ public class Compare {
 	private void process() {
 		// processing the comparison
 		BufferedInputStream inputStream = null;
-		IApiProfile baseline = null;
+		IApiBaseline baseline = null;
 		try {
 			inputStream = new BufferedInputStream(new FileInputStream(this.baseline));
-			baseline = ApiProfileManager.restoreProfile(inputStream);
+			baseline = ApiBaselineManager.restoreProfile(inputStream);
 		} catch (FileNotFoundException e) {
 			ApiPlugin.log(e);
 		} catch (CoreException e) {
@@ -161,10 +161,10 @@ public class Compare {
 			}
 		}
 		inputStream = null;
-		IApiProfile profile = null;
+		IApiBaseline profile = null;
 		try {
 			inputStream = new BufferedInputStream(new FileInputStream(this.profile));
-			profile = ApiProfileManager.restoreProfile(inputStream);
+			profile = ApiBaselineManager.restoreProfile(inputStream);
 		} catch (FileNotFoundException e) {
 			ApiPlugin.log(e);
 		} catch (CoreException e) {

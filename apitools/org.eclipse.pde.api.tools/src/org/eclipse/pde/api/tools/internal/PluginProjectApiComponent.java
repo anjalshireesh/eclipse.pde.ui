@@ -34,10 +34,10 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
-import org.eclipse.pde.api.tools.internal.provisional.IApiDescription;
 import org.eclipse.pde.api.tools.internal.provisional.IApiFilterStore;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.IClassFileContainer;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiDescription;
 import org.eclipse.pde.api.tools.internal.provisional.scanner.TagScanner;
 import org.eclipse.pde.api.tools.internal.util.Util;
 import org.eclipse.pde.core.build.IBuild;
@@ -95,10 +95,10 @@ public class PluginProjectApiComponent extends BundleApiComponent {
 	 * @param project java project
 	 * @throws CoreException if unable to create the API component
 	 */
-	public PluginProjectApiComponent(IApiProfile profile, String location, IPluginModelBase model) throws CoreException {
+	public PluginProjectApiComponent(IApiBaseline profile, String location, IPluginModelBase model) throws CoreException {
 		super(profile,location);
 		IPath path = new Path(location);
-		IProject project = ApiProfile.ROOT.getProject(path.lastSegment());
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.lastSegment());
 		this.fProject = JavaCore.create(project);
 		this.fModel = model;
 	}

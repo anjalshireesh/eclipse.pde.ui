@@ -11,6 +11,8 @@
 package org.eclipse.pde.api.tools.internal.provisional;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiDescription;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblemFilter;
 
@@ -138,7 +140,7 @@ public interface IApiComponent extends IClassFileContainer {
 	public boolean isSourceComponent();
 	/**
 	 * Disposes this API component. Clients must call this method when done
-	 * with an API component. Note that disposing an {@link IApiProfile} will dispose all of
+	 * with an API component. Note that disposing an {@link IApiBaseline} will dispose all of
 	 * its components. 
 	 */
 	public void dispose();
@@ -148,7 +150,7 @@ public interface IApiComponent extends IClassFileContainer {
 	 * 
 	 * @return API profile
 	 */
-	public IApiProfile getProfile();
+	public IApiBaseline getProfile();
 		
 	/**
 	 * Returns a store of problem filters defined for this component or <code>null</code>

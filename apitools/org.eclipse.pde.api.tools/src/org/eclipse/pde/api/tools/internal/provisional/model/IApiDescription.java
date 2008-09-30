@@ -8,9 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.pde.api.tools.internal.provisional;
+package org.eclipse.pde.api.tools.internal.provisional.model;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.pde.api.tools.internal.provisional.ApiDescriptionVisitor;
+import org.eclipse.pde.api.tools.internal.provisional.IApiAnnotations;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IElementDescriptor;
 
 
@@ -22,7 +24,7 @@ import org.eclipse.pde.api.tools.internal.provisional.descriptors.IElementDescri
  * 
  * @since 1.0
  */
-public interface IApiDescription {
+public interface IApiDescription extends IApiParent, IApiElement {
 	
 	/**
 	 * Status code indicating an element was not found when attempting to

@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.pde.api.tools.internal.model.ApiDescription;
 import org.eclipse.pde.api.tools.internal.provisional.ApiDescriptionVisitor;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
@@ -120,7 +121,7 @@ public class ProjectApiDescription extends ApiDescription {
 		/* (non-Javadoc)
 		 * @see org.eclipse.pde.api.tools.internal.ApiDescription.ManifestNode#refresh()
 		 */
-		protected ManifestNode refresh() {
+		public ManifestNode refresh() {
 			refreshPackages();
 			for (int i = 0; i < fFragments.length; i++) {
 				if (!fFragments[i].exists()) {
@@ -201,7 +202,7 @@ public class ProjectApiDescription extends ApiDescription {
 		/* (non-Javadoc)
 		 * @see org.eclipse.pde.api.tools.internal.ApiDescription.ManifestNode#refresh()
 		 */
-		protected synchronized ManifestNode refresh() {
+		public synchronized ManifestNode refresh() {
 			if (fRefreshing) {
 				return this;
 			}

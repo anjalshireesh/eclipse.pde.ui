@@ -16,10 +16,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -49,11 +52,12 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.pde.api.tools.internal.builder.ApiAnalysisBuilder;
+import org.eclipse.pde.api.tools.internal.model.ApiBaseline;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.IApiProfileManager;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.util.Util;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.PluginRegistry;
@@ -74,7 +78,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * @since 1.0.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
-public final class ApiProfileManager implements IApiProfileManager, ISaveParticipant, IElementChangedListener, IPluginModelListener, IResourceChangeListener {
+public final class ApiBaselineManager implements IApiProfileManager, ISaveParticipant, IElementChangedListener, IPluginModelListener, IResourceChangeListener {
 	
 	/**
 	 * Constant used for controlling tracing in the API tool builder
@@ -95,7 +99,7 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 	private static final String DEFAULT_PROFILE = "default_api_profile"; //$NON-NLS-1$
 	
 	/**
-	 * Constant representing the id of the workspace {@link IApiProfile}.
+	 * Constant representing the id of the workspace {@link IApiBaseline}.
 	 * Value is: <code>workspace</code>
 	 */
 	public static final String WORKSPACE_API_PROFILE_ID = "workspace"; //$NON-NLS-1$
@@ -104,20 +108,20 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 	 * The main cache for the manager.
 	 * The form of the cache is: 
 	 * <pre>
-	 * HashMap<String(profileid), ApiProfile>
+	 * HashMap<String(profileid), ApiBaseline>
 	 * </pre>
 	 */
 	private HashMap profilecache = null;
 	
 	/**
-	 * The current default {@link IApiProfile}
+	 * The current default {@link IApiBaseline}
 	 */
 	private String defaultprofile = null;
 	
 	/**
 	 * The current workspace profile
 	 */
-	private IApiProfile workspaceprofile = null;
+	private IApiBaseline workspaceprofile = null;
 	
 	/**
 	 * The default save location for persisting the cache from this manager.
@@ -132,12 +136,12 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 	/**
 	 * The singleton instance
 	 */
-	private static ApiProfileManager fInstance = null;
+	private static ApiBaselineManager fInstance = null;
 	
 	/**
 	 * Constructor
 	 */
-	private ApiProfileManager(boolean framework) {
+	private ApiBaselineManager(boolean framework) {
 		if(framework) {
 			ApiPlugin.getDefault().addSaveParticipant(this);
 			JavaCore.addElementChangedListener(this, ElementChangedEvent.POST_CHANGE);
@@ -151,9 +155,9 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 	 * Returns the singleton instance of the manager
 	 * @return the singleton instance of the manager
 	 */
-	public static synchronized ApiProfileManager getManager() {
+	public static synchronized ApiBaselineManager getManager() {
 		if(fInstance == null) {
-			fInstance = new ApiProfileManager(ApiPlugin.isRunningInFramework());
+			fInstance = new ApiBaselineManager(ApiPlugin.isRunningInFramework());
 		}
 		return fInstance;
 	}
@@ -161,23 +165,23 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 	/* (non-Javadoc)
 	 * @see org.eclipse.pde.api.tools.IApiProfileManager#getApiProfile(java.lang.String)
 	 */
-	public synchronized IApiProfile getApiProfile(String name) {
+	public synchronized IApiBaseline getApiProfile(String name) {
 		initializeStateCache();
-		return (ApiProfile) profilecache.get(name);
+		return (ApiBaseline) profilecache.get(name);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.pde.api.tools.IApiProfileManager#getApiProfiles()
 	 */
-	public synchronized IApiProfile[] getApiProfiles() {
+	public synchronized IApiBaseline[] getApiProfiles() {
 		initializeStateCache();
-		return (IApiProfile[]) profilecache.values().toArray(new IApiProfile[profilecache.size()]);
+		return (IApiBaseline[]) profilecache.values().toArray(new IApiBaseline[profilecache.size()]);
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.pde.api.tools.IApiProfileManager#addApiProfile(org.eclipse.pde.api.tools.model.component.IApiProfile)
 	 */
-	public synchronized void addApiProfile(IApiProfile newprofile) {
+	public synchronized void addApiProfile(IApiBaseline newprofile) {
 		if(newprofile != null) {
 			initializeStateCache();
 			profilecache.put(newprofile.getName(), newprofile);
@@ -191,7 +195,7 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 	public synchronized boolean removeApiProfile(String name) {
 		if(name != null) {
 			initializeStateCache();
-			IApiProfile profile = (IApiProfile) profilecache.remove(name);
+			IApiBaseline profile = (IApiBaseline) profilecache.remove(name);
 			if(profile != null) {
 				profile.dispose();
 				boolean success = true;
@@ -230,7 +234,7 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 			});
 			if(profiles != null) {
 				InputStream fin = null;
-				IApiProfile newprofile = null;
+				IApiBaseline newprofile = null;
 				for(int i = 0; i < profiles.length; i++) {
 					File profile = profiles[i];
 					if(profile.exists()) {
@@ -249,7 +253,7 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 				}
 			}
 			String def = ApiPlugin.getDefault().getPluginPreferences().getString(DEFAULT_PROFILE);
-			IApiProfile profile = (IApiProfile) profilecache.get(def);
+			IApiBaseline profile = (IApiBaseline) profilecache.get(def);
 			defaultprofile = (profile != null ? def : null);
 			if(DEBUG) {
 				System.out.println("Time to initialize state cache: " + (System.currentTimeMillis() - time) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -281,17 +285,17 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 			String id = null;
 			File file = null;
 			FileOutputStream fout = null;
-			IApiProfile profile = null;
+			IApiBaseline baseline = null;
 			for(Iterator iter = profilecache.keySet().iterator(); iter.hasNext();) {
 				id = (String) iter.next();
-				profile = (IApiProfile) profilecache.get(id);
+				baseline = (IApiBaseline) profilecache.get(id);
 				file = savelocation.append(id+".profile").toFile(); //$NON-NLS-1$
 				if(!file.exists()) {
 					file.createNewFile();
 				}
 				try {
 					fout = new FileOutputStream(file);
-					profile.writeProfileDescription(fout);
+					writeBaselineDescription(baseline, fout);
 					fout.flush();
 				}
 				finally {
@@ -300,6 +304,92 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 			}
 		}
 	}	
+	
+	/**
+	 * Writes the given {@link IApiBaseline} out as XML
+	 * @param baseline
+	 * @param stream
+	 * @throws CoreException
+	 */
+	public void writeBaselineDescription(IApiBaseline baseline, OutputStream stream) throws CoreException {
+		String xml = getBaselineXML(baseline);
+		try {
+			stream.write(xml.getBytes(IApiCoreConstants.UTF_8));
+		} catch (UnsupportedEncodingException e) {
+			abort("Error writing pofile descrition", e); //$NON-NLS-1$
+		} catch (IOException e) {
+			abort("Error writing pofile descrition", e); //$NON-NLS-1$
+		}
+	}
+	
+	/**
+	 * Returns an XML description of the given profile.
+	 * 
+	 * @param profile API profile
+	 * @return XML
+	 * @throws CoreException
+	 */
+	private String getBaselineXML(IApiBaseline baseline) throws CoreException {
+		// pool bundles by location
+		Map pools = new HashMap();
+		List unRooted = new ArrayList();
+		IApiComponent[] components = baseline.getApiComponents();
+		for(int i = 0; i < components.length; i++) {
+			if(!components[i].isSystemComponent()) {
+				String location = components[i].getLocation();
+				File file = new File(location);
+				if (file.exists()) {
+					File dir = file.getParentFile();
+					if (dir != null) {
+						List pool = (List) pools.get(dir);
+						if (pool == null) {
+							pool = new ArrayList();
+							pools.put(dir, pool);
+						}
+						pool.add(components[i]);
+					} else {
+						unRooted.add(components[i]);
+					}
+				}
+				
+			}
+		}
+		Document document = Util.newDocument();
+		Element root = document.createElement(IApiXmlConstants.ELEMENT_APIPROFILE);
+		document.appendChild(root);
+		root.setAttribute(IApiXmlConstants.ATTR_NAME, baseline.getName());
+		root.setAttribute(IApiXmlConstants.ATTR_VERSION, IApiXmlConstants.API_PROFILE_CURRENT_VERSION);
+		// dump component pools
+		Element subroot = null;
+		File dir = null;
+		List comps = null;
+		IApiComponent comp = null;
+		Element celement = null;
+		for(Iterator iter = pools.keySet().iterator(); iter.hasNext();) {
+			dir = (File) iter.next();
+			subroot = document.createElement(IApiXmlConstants.ELEMENT_POOL);
+			root.appendChild(subroot);
+			subroot.setAttribute(IApiXmlConstants.ATTR_LOCATION, new Path(dir.getAbsolutePath()).toPortableString());
+			comps = (List) pools.get(dir);
+			for(Iterator iter2 = comps.iterator(); iter2.hasNext();) {
+				comp = (IApiComponent) iter2.next();
+				celement = document.createElement(IApiXmlConstants.ELEMENT_APICOMPONENT);
+				celement.setAttribute(IApiXmlConstants.ATTR_ID, comp.getId());
+				celement.setAttribute(IApiXmlConstants.ATTR_VERSION, comp.getVersion());
+				subroot.appendChild(celement);
+			}
+		}
+		// dump un-pooled components
+		for(Iterator iter = unRooted.iterator(); iter.hasNext();) {
+			comp = (IApiComponent) iter.next();
+			celement = document.createElement(IApiXmlConstants.ELEMENT_APICOMPONENT);
+			celement.setAttribute(IApiXmlConstants.ATTR_ID, comp.getId());
+			celement.setAttribute(IApiXmlConstants.ATTR_VERSION, comp.getVersion());
+			celement.setAttribute(IApiXmlConstants.ATTR_LOCATION, new Path(comp.getLocation()).toPortableString());
+			root.appendChild(celement);
+		}
+		return Util.serializeDocument(document);
+	}
 	
 	/**
 	 * Throws a core exception with the given message and underlying exception,
@@ -320,7 +410,7 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 	 * @return API profile
 	 * @throws CoreException if unable to restore the profile
 	 */
-	public static IApiProfile restoreProfile(InputStream stream) throws CoreException {
+	public static IApiBaseline restoreProfile(InputStream stream) throws CoreException {
 		long start = System.currentTimeMillis();
 		DocumentBuilder parser = null;
 		try {
@@ -331,12 +421,12 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 		} catch (FactoryConfigurationError e) {
 			abort("Error restoring API profile", e); //$NON-NLS-1$
 		}
-		IApiProfile profile = null;
+		IApiBaseline profile = null;
 		try {
 			Document document = parser.parse(stream);
 			Element root = document.getDocumentElement();
 			if(root.getNodeName().equals(IApiXmlConstants.ELEMENT_APIPROFILE)) {
-				profile = new ApiProfile(root.getAttribute(IApiXmlConstants.ATTR_NAME));
+				profile = new ApiBaseline(root.getAttribute(IApiXmlConstants.ATTR_NAME));
 				// un-pooled components
 				NodeList children = root.getElementsByTagName(IApiXmlConstants.ELEMENT_APICOMPONENT);
 				List components = new ArrayList();
@@ -434,7 +524,7 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 			if(profilecache != null) {
 				// we should first dispose all existing profiles
 				for (Iterator iterator = this.profilecache.values().iterator(); iterator.hasNext();) {
-					IApiProfile profile = (IApiProfile) iterator.next();
+					IApiBaseline profile = (IApiBaseline) iterator.next();
 					profile.dispose();
 				}
 				this.profilecache.clear();
@@ -471,9 +561,9 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 	/* (non-Javadoc)
 	 * @see org.eclipse.pde.api.tools.IApiProfileManager#getDefaultApiProfile()
 	 */
-	public synchronized IApiProfile getDefaultApiProfile() {
+	public synchronized IApiBaseline getDefaultApiProfile() {
 		initializeStateCache();
-		return (IApiProfile) profilecache.get(defaultprofile);
+		return (IApiBaseline) profilecache.get(defaultprofile);
 	}
 
 	/* (non-Javadoc)
@@ -487,7 +577,7 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 	/* (non-Javadoc)
 	 * @see org.eclipse.pde.api.tools.internal.provisional.IApiProfileManager#getWorkspaceProfile()
 	 */
-	public synchronized IApiProfile getWorkspaceProfile() {
+	public synchronized IApiBaseline getWorkspaceProfile() {
 		if(ApiPlugin.isRunningInFramework()) {
 			if(this.workspaceprofile == null) {
 				this.workspaceprofile = createWorkspaceProfile();
@@ -509,14 +599,14 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 	}
 
 	/**
-	 * Creates a workspace {@link IApiProfile}
-	 * @return a new workspace {@link IApiProfile} or <code>null</code>
+	 * Creates a workspace {@link IApiBaseline}
+	 * @return a new workspace {@link IApiBaseline} or <code>null</code>
 	 */
-	private IApiProfile createWorkspaceProfile() {
+	private IApiBaseline createWorkspaceProfile() {
 		long time = System.currentTimeMillis();
-		IApiProfile profile = null; 
+		IApiBaseline profile = null; 
 		try {
-			profile = Factory.newApiProfile(ApiProfileManager.WORKSPACE_API_PROFILE_ID);
+			profile = Factory.newApiProfile(ApiBaselineManager.WORKSPACE_API_PROFILE_ID);
 			// populate it with only projects that are API aware
 			IPluginModelBase[] models = PluginRegistry.getActiveModels();
 			List componentsList = new ArrayList(models.length);
@@ -645,7 +735,7 @@ public final class ApiProfileManager implements IApiProfileManager, ISavePartici
 		if(DEBUG) {
 			System.out.println("processed package fragment REMOVE delta: ["+fragment.getElementName()+"]"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		((ApiProfile)getWorkspaceProfile()).clearPackage(fragment.getElementName());
+		((ApiBaseline)getWorkspaceProfile()).clearPackage(fragment.getElementName());
 	}
 	
 	/**

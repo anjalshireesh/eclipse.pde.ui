@@ -8,12 +8,12 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.pde.api.tools.internal.provisional;
-
-import java.io.OutputStream;
+package org.eclipse.pde.api.tools.internal.provisional.model;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.osgi.service.resolver.ResolverError;
+import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 
 /**
@@ -22,7 +22,7 @@ import org.eclipse.pde.core.plugin.IPluginModelBase;
  * 
  * @since 1.0.0
  */
-public interface IApiProfile {
+public interface IApiBaseline extends IApiParent, IApiElement {
 	
 	/**
 	 * Returns all API components in this profile. The components
@@ -115,14 +115,6 @@ public interface IApiProfile {
 	public String getExecutionEnvironment();
 	
 	/**
-	 * Returns a status describing how the execution environment bound to this API
-	 * profile satisfies the requirements of the components in this profile.
-	 * 
-	 * @return status describing execution environment bound to this profile
-	 */
-	public IStatus getExecutionEnvironmentStatus();
-	
-	/**
 	 * Disposes this API profile. Clients must call this method when done
 	 * with a profile in order to free system resources.
 	 * <p>
@@ -139,15 +131,6 @@ public interface IApiProfile {
 	 * @throws CoreException if closing fails
 	 */
 	public void close() throws CoreException;	
-	
-	/**
-	 * Writes a description of this profile to the given output stream.
-	 * The profile can be recreated using the {@link Factory}.
-	 * 
-	 * @param stream output stream to write description to
-	 * @throws CoreException if something goes terribly wrong
-	 */
-	public void writeProfileDescription(OutputStream stream) throws CoreException;
 	
 	/**
 	 * Returns all components in this profile depending on the given components.
@@ -169,4 +152,20 @@ public interface IApiProfile {
 	 */
 	public IApiComponent[] getPrerequisiteComponents(IApiComponent[] components);
 	
+	/**
+	 * Returns all errors in the underlying {@link org.eclipse.osgi.service.resolver.State}
+	 * from an attempt to resolve the state. 
+	 * 
+	 * If there are no resolution errors an empty array is returned.
+	 * 
+	 * @return state errors
+	 */
+	public ResolverError[] getResolutionErrors();
+	
+	/**
+	 * Returns the combined status of the {@link IApiBaseline}
+	 * 
+	 * @return the combined status of this baseline
+	 */
+	public IStatus getStatus();
 }

@@ -38,8 +38,8 @@ import org.eclipse.pde.api.tools.internal.problems.ApiProblemFactory;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.IApiProfileManager;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.util.Util;
 import org.eclipse.pde.api.tools.model.tests.TestSuiteHelper;
 import org.eclipse.pde.api.tools.tests.ApiTestsPlugin;
@@ -164,10 +164,10 @@ public abstract class CompatibilityTest extends ApiBuilderTest {
 		// populate the workspace with initial plug-ins/projects
 		createExistingProjects(BASELINE, true);
 		IApiProfileManager manager = ApiPlugin.getDefault().getApiProfileManager();
-		IApiProfile baseline = manager.getDefaultApiProfile();
+		IApiBaseline baseline = manager.getDefaultApiProfile();
 		if (baseline == null) {
 			// create the API baseline
-			IApiProfile profile = manager.getWorkspaceProfile();
+			IApiBaseline profile = manager.getWorkspaceProfile();
 			IProject[] projects = getEnv().getWorkspace().getRoot().getProjects();
 			IPath baselineLocation = ApiTestsPlugin.getDefault().getStateLocation().append(BASELINE);
 			for (int i = 0; i < projects.length; i++) {

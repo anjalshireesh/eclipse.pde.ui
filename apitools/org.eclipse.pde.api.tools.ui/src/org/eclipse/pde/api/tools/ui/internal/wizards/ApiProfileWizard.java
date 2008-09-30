@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.ui.internal.ApiUIPlugin;
 
 /**
@@ -23,13 +23,13 @@ import org.eclipse.pde.api.tools.ui.internal.ApiUIPlugin;
  */
 public class ApiProfileWizard extends Wizard {
 
-	private IApiProfile profile = null;
+	private IApiBaseline profile = null;
 	
 	/**
 	 * Constructor
 	 * @param profile
 	 */
-	public ApiProfileWizard(IApiProfile profile) {
+	public ApiProfileWizard(IApiBaseline profile) {
 		this.profile = profile;
 		if(profile == null) {
 			setWindowTitle(WizardMessages.ApiProfileWizard_0);
@@ -44,7 +44,7 @@ public class ApiProfileWizard extends Wizard {
 	 * @return the current profile in the wizard. The current profile 
 	 * can be <code>null</code> if the wizard has just been opened to create a new API profile
 	 */
-	public IApiProfile getProfile() {
+	public IApiBaseline getProfile() {
 		return profile;
 	}
 	

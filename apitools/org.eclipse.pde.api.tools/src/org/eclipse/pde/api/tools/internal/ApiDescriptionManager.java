@@ -37,13 +37,12 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.pde.api.tools.internal.ApiDescription.ManifestNode;
 import org.eclipse.pde.api.tools.internal.ProjectApiDescription.TypeNode;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
-import org.eclipse.pde.api.tools.internal.provisional.IApiDescription;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IElementDescriptor;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IReferenceTypeDescriptor;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiDescription;
 import org.eclipse.pde.api.tools.internal.provisional.scanner.ScannerMessages;
 import org.eclipse.pde.api.tools.internal.util.Util;
 import org.w3c.dom.Element;
@@ -151,10 +150,7 @@ public class ApiDescriptionManager implements IElementChangedListener, ISavePart
 				.append(IApiCoreConstants.API_DESCRIPTION_XML_NAME).toFile();
 			if (file.exists()) {
 				file.delete();
-			}
-			file = API_DESCRIPTIONS_CONTAINER_PATH.append(project.getElementName()).toFile();
-			if(file.exists() && file.isDirectory()) {
-				file.delete();
+				file.getParentFile().delete();
 			}
 		}
 	}

@@ -41,8 +41,8 @@ import org.eclipse.pde.api.tools.internal.problems.ApiProblemFactory;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.IApiProfileManager;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.model.tests.TestSuiteHelper;
 import org.eclipse.pde.api.tools.tests.ApiTestsPlugin;
 import org.eclipse.ui.dialogs.IOverwriteQuery;
@@ -174,7 +174,7 @@ public abstract class PerformanceTest extends ApiBuilderTest {
 			IApiProfileManager manager = ApiPlugin.getDefault().getApiProfileManager();
 			IPath path = new Path(zipPath);
 			String id = path.lastSegment();
-			IApiProfile perfline = manager.getApiProfile(id);
+			IApiBaseline perfline = manager.getApiProfile(id);
 			if (perfline == null) {
 				// create the API baseline
 				IPath baselineLocation = ApiTestsPlugin.getDefault().getStateLocation().append(id);
@@ -195,7 +195,7 @@ public abstract class PerformanceTest extends ApiBuilderTest {
 				manager.addApiProfile(perfline);
 				manager.setDefaultApiProfile(perfline.getName());			
 			}
-			IApiProfile baseline = manager.getDefaultApiProfile();
+			IApiBaseline baseline = manager.getDefaultApiProfile();
 			if (baseline != perfline) {
 				manager.setDefaultApiProfile(perfline.getName());
 			}

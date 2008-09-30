@@ -66,8 +66,8 @@ import org.eclipse.pde.api.tools.internal.problems.ApiProblemFactory;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
 import org.eclipse.pde.api.tools.internal.provisional.IApiMarkerConstants;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.builder.IApiAnalyzer;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
 import org.eclipse.pde.api.tools.internal.util.Util;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
@@ -373,13 +373,13 @@ public class ApiAnalysisBuilder extends IncrementalProjectBuilder {
 	 * @param monitor
 	 */
 	private void buildAll(IProgressMonitor monitor) throws CoreException {
-		IApiProfile wsprofile = null;
+		IApiBaseline wsprofile = null;
 		try {
 			clearLastState();
 			fBuildState = new BuildState();
 			SubMonitor localMonitor = SubMonitor.convert(monitor, BuilderMessages.api_analysis_on_0, 4);
 			localMonitor.subTask(NLS.bind(BuilderMessages.ApiAnalysisBuilder_initializing_analyzer, fCurrentProject.getName()));
-			IApiProfile profile = ApiPlugin.getDefault().getApiProfileManager().getDefaultApiProfile();
+			IApiBaseline profile = ApiPlugin.getDefault().getApiProfileManager().getDefaultApiProfile();
 			cleanupMarkers(fCurrentProject);
 			cleanupUnsupportedTagMarkers(fCurrentProject);
 			IPluginModelBase currentModel = getCurrentModel();
@@ -586,7 +586,7 @@ public class ApiAnalysisBuilder extends IncrementalProjectBuilder {
 	 * @param monitor
 	 */
 	private void build(final State state, IProgressMonitor monitor) throws CoreException {
-		IApiProfile wsprofile = null;
+		IApiBaseline wsprofile = null;
 		try {
 			clearLastState(); // so if the build fails, a full build will be triggered
 			SubMonitor localMonitor = SubMonitor.convert(monitor, BuilderMessages.api_analysis_on_0, 6);
@@ -613,7 +613,7 @@ public class ApiAnalysisBuilder extends IncrementalProjectBuilder {
 						 cnames = new ArrayList(fChangedTypes.size());
 					collectAllQualifiedNames(fTypesToCheck, fChangedTypes, tnames, cnames, localMonitor.newChild(1));
 					updateMonitor(localMonitor, 1);
-					IApiProfile profile = ApiPlugin.getDefault().getApiProfileManager().getDefaultApiProfile();
+					IApiBaseline profile = ApiPlugin.getDefault().getApiProfileManager().getDefaultApiProfile();
 					fAnalyzer.analyzeComponent(fBuildState, null, profile, apiComponent, (String[])tnames.toArray(new String[tnames.size()]), (String[])cnames.toArray(new String[cnames.size()]), localMonitor.newChild(1));
 					updateMonitor(localMonitor, 1);
 					createMarkers();
@@ -933,9 +933,9 @@ public class ApiAnalysisBuilder extends IncrementalProjectBuilder {
 	}
 
 	/**
-	 * @return the workspace {@link IApiProfile}
+	 * @return the workspace {@link IApiBaseline}
 	 */
-	private IApiProfile getWorkspaceProfile() {
+	private IApiBaseline getWorkspaceProfile() {
 		return ApiPlugin.getDefault().getApiProfileManager().getWorkspaceProfile();
 	}
 	

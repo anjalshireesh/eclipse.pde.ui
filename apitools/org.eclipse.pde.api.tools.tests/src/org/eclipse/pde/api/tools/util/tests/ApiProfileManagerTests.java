@@ -57,11 +57,11 @@ import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
 import org.eclipse.pde.api.tools.internal.provisional.IApiAnnotations;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
-import org.eclipse.pde.api.tools.internal.provisional.IApiDescription;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.IApiProfileManager;
 import org.eclipse.pde.api.tools.internal.provisional.RestrictionModifiers;
 import org.eclipse.pde.api.tools.internal.provisional.VisibilityModifiers;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiDescription;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.util.Util;
 import org.eclipse.pde.api.tools.model.tests.TestSuiteHelper;
 import org.eclipse.pde.api.tools.tests.AbstractApiTest;
@@ -79,7 +79,7 @@ import org.eclipse.text.edits.TextEdit;
 import org.osgi.framework.Constants;
 
 /**
- * Tests the {@link ApiProfileManager} without the framework running
+ * Tests the {@link ApiBaselineManager} without the framework running
  */
 public class ApiProfileManagerTests extends AbstractApiTest {
 
@@ -180,7 +180,7 @@ public class ApiProfileManagerTests extends AbstractApiTest {
 	 * @return the {@link IApiDescription} for the testing project
 	 */
 	private IApiDescription getTestProjectApiDescription()  throws CoreException {
-		IApiProfile profile = getWorkspaceProfile();
+		IApiBaseline profile = getWorkspaceProfile();
 		assertNotNull("the workspace profile must exist", profile);
 		IApiComponent component = profile.getApiComponent(TESTING_PLUGIN_PROJECT_NAME);
 		if(component != null) {
@@ -194,7 +194,7 @@ public class ApiProfileManagerTests extends AbstractApiTest {
 	 * 
 	 * @return workspace profile
 	 */
-	private IApiProfile getWorkspaceProfile() {
+	private IApiBaseline getWorkspaceProfile() {
 		return fPMmanager.getWorkspaceProfile();
 	}
 	
@@ -204,8 +204,8 @@ public class ApiProfileManagerTests extends AbstractApiTest {
 	 * @param id
 	 * @return
 	 */
-	protected IApiProfile getTestProfile(String id) {
-		IApiProfile profile = null;
+	protected IApiBaseline getTestProfile(String id) {
+		IApiBaseline profile = null;
 		profile = Factory.newApiProfile(id);
 		fPMmanager.addApiProfile(profile);
 		return profile;
@@ -215,7 +215,7 @@ public class ApiProfileManagerTests extends AbstractApiTest {
 	 * Tests trying to get the workspace profile without the framework running 
 	 */
 	public void testGetWorkspaceComponent() {
-		IApiProfile profile = getWorkspaceProfile();
+		IApiBaseline profile = getWorkspaceProfile();
 		assertTrue("the workspace profile must not be null", profile != null);
 	}
 	
@@ -223,7 +223,7 @@ public class ApiProfileManagerTests extends AbstractApiTest {
 	 * Tests that an api profile can be added and retrieved successfully 
 	 */
 	public void testAddProfile() {
-		IApiProfile profile = getTestProfile("addtest");
+		IApiBaseline profile = getTestProfile("addtest");
 		assertTrue("the test profile must have been created", profile != null);
 		profile = fPMmanager.getApiProfile("addtest");
 		assertTrue("the testadd profile must be in the manager", profile != null);
@@ -233,7 +233,7 @@ public class ApiProfileManagerTests extends AbstractApiTest {
 	 * Tests that an api profile can be added/removed successfully
 	 */
 	public void testRemoveProfile() {
-		IApiProfile profile = getTestProfile("removetest");
+		IApiBaseline profile = getTestProfile("removetest");
 		assertTrue("the testremove profile must exist", profile != null);
 		profile = fPMmanager.getApiProfile("removetest");
 		assertTrue("the testremove profile must be in the manager", profile != null);
@@ -244,7 +244,7 @@ public class ApiProfileManagerTests extends AbstractApiTest {
 	 * Tests that the default profile can be set/retrieved
 	 */
 	public void testSetDefaultProfile() {
-		IApiProfile profile = getTestProfile("testdefault");
+		IApiBaseline profile = getTestProfile("testdefault");
 		assertTrue("the testdefault profile must exist", profile != null);
 		fPMmanager.setDefaultApiProfile("testdefault");
 		profile = fPMmanager.getDefaultApiProfile();
@@ -256,7 +256,7 @@ public class ApiProfileManagerTests extends AbstractApiTest {
 	 */
 	public void testGetAllProfiles() {
 		getTestProfile("three");
-		IApiProfile[] profiles = fPMmanager.getApiProfiles();
+		IApiBaseline[] profiles = fPMmanager.getApiProfiles();
 		assertTrue("there should be three profiles", profiles.length == 3);
 	}
 	
@@ -305,7 +305,7 @@ public class ApiProfileManagerTests extends AbstractApiTest {
 	        IVMInstall vm = JavaRuntime.getDefaultVMInstall();
 	        assertNotNull("No default JRE", vm);
 	        ProjectUtils.addContainerEntry(project, new Path(JavaRuntime.JRE_CONTAINER));
-	        IApiProfile profile = getWorkspaceProfile();
+	        IApiBaseline profile = getWorkspaceProfile();
 	        assertNotNull("the workspace profile cannot be null", profile);
 	        IApiComponent component = profile.getApiComponent(TESTING_PLUGIN_PROJECT_NAME);
 	        assertNotNull("the test project api component must exist in the workspace profile", component);
@@ -466,7 +466,7 @@ public class ApiProfileManagerTests extends AbstractApiTest {
 			project.getProject().open(new NullProgressMonitor());
 			Object obj = waiter.waitForEvent();
 			assertNotNull("the opened event was not received", obj);
-			IApiProfile profile = getWorkspaceProfile();
+			IApiBaseline profile = getWorkspaceProfile();
 			assertNotNull("the workspace profile must not be null", profile);
 			IApiComponent component = profile.getApiComponent(TESTING_PLUGIN_PROJECT_NAME);
 			assertNotNull("the test project api component must exist in the workspace profile", component);

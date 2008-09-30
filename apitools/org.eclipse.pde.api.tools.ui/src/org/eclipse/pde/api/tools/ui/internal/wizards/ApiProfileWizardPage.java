@@ -40,12 +40,12 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.pde.api.tools.internal.ApiProfileManager;
+import org.eclipse.pde.api.tools.internal.ApiBaselineManager;
 import org.eclipse.pde.api.tools.internal.SystemLibraryApiComponent;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.ui.internal.ApiToolsLabelProvider;
 import org.eclipse.pde.api.tools.ui.internal.ApiUIPlugin;
 import org.eclipse.pde.api.tools.ui.internal.IApiToolsConstants;
@@ -208,18 +208,18 @@ public class ApiProfileWizardPage extends WizardPage {
 	}
 	
 	/**
-	 * Operation that creates a new working copy for an {@link IApiProfile} that is being edited
+	 * Operation that creates a new working copy for an {@link IApiBaseline} that is being edited
 	 */
 	class WorkingCopyOperation implements IRunnableWithProgress {
 		
-		IApiProfile original = null, 
+		IApiBaseline original = null, 
 					workingcopy = null;
 		
 		/**
 		 * Constructor
 		 * @param original
 		 */
-		public WorkingCopyOperation(IApiProfile original) {
+		public WorkingCopyOperation(IApiBaseline original) {
 			this.original = original;
 		}
 		
@@ -251,15 +251,15 @@ public class ApiProfileWizardPage extends WizardPage {
 		}
 		
 		/**
-		 * Returns the newly created {@link IApiProfile} working copy or <code>null</code>
+		 * Returns the newly created {@link IApiBaseline} working copy or <code>null</code>
 		 * @return the working copy or <code>null</code>
 		 */
-		public IApiProfile getWorkingCopy() {
+		public IApiBaseline getWorkingCopy() {
 			return workingcopy;
 		}
 	}
 	
-	private IApiProfile fProfile = null;
+	private IApiBaseline fProfile = null;
 	private String originalname = null;
 	
 	/**
@@ -274,7 +274,7 @@ public class ApiProfileWizardPage extends WizardPage {
 	 * Constructor
 	 * @param profile
 	 */
-	protected ApiProfileWizardPage(IApiProfile profile) {
+	protected ApiProfileWizardPage(IApiBaseline profile) {
 		super(WizardMessages.ApiProfileWizardPage_1);
 		this.fProfile = profile;
 		setTitle(WizardMessages.ApiProfileWizardPage_1);
@@ -485,7 +485,7 @@ public class ApiProfileWizardPage extends WizardPage {
 			setErrorMessage(WizardMessages.ApiProfileWizardPage_20);
 			return false;
 		}
-		if(!name.equals(originalname) && (((ApiProfileManager)ApiPlugin.getDefault().getApiProfileManager()).isExistingProfileName(name) &&
+		if(!name.equals(originalname) && (((ApiBaselineManager)ApiPlugin.getDefault().getApiProfileManager()).isExistingProfileName(name) &&
 				!ApiProfilesPreferencePage.isRemovedBaseline(name))) {
 			setErrorMessage(WizardMessages.ApiProfileWizardPage_profile_with_that_name_exists);
 			return false;
@@ -520,10 +520,10 @@ public class ApiProfileWizardPage extends WizardPage {
 	
 	/**
 	 * Creates or edits the profile and returns it
-	 * @return a new {@link IApiProfile} or <code>null</code> if an error was encountered
+	 * @return a new {@link IApiBaseline} or <code>null</code> if an error was encountered
 	 * creating the new profile
 	 */
-	public IApiProfile finish() throws IOException, CoreException {
+	public IApiBaseline finish() throws IOException, CoreException {
 		if(fProfile != null) {
 			fProfile.setName(nametext.getText().trim());
 		}	

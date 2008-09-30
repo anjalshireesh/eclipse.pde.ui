@@ -26,10 +26,10 @@ import org.eclipse.pde.api.tools.internal.comparator.DeltaXmlVisitor;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.VisibilityModifiers;
 import org.eclipse.pde.api.tools.internal.provisional.comparator.ApiComparator;
 import org.eclipse.pde.api.tools.internal.provisional.comparator.IDelta;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.util.Util;
 
 /**
@@ -97,8 +97,8 @@ public class CompareProfilesTask extends Task {
 
 		// run the comparison
 		// create profile for the reference
-		IApiProfile referenceProfile = createProfile(REFERENCE_PROFILE_NAME, getInstallDir(tempDir, REFERENCE), this.eeFileLocation);
-		IApiProfile currentProfile = createProfile(CURRENT_PROFILE_NAME, getInstallDir(tempDir, CURRENT), this.eeFileLocation);
+		IApiBaseline referenceProfile = createProfile(REFERENCE_PROFILE_NAME, getInstallDir(tempDir, REFERENCE), this.eeFileLocation);
+		IApiBaseline currentProfile = createProfile(CURRENT_PROFILE_NAME, getInstallDir(tempDir, CURRENT), this.eeFileLocation);
 		
 		IDelta delta = null;
 		
@@ -171,9 +171,9 @@ public class CompareProfilesTask extends Task {
 		return new File(new File(new File(dir, profileInstallName), ECLIPSE_FOLDER_NAME), PLUGINS_FOLDER_NAME).getAbsolutePath();
 	}
 
-	private static IApiProfile createProfile(String profileName, String fileName, String eeFileLocation) {
+	private static IApiBaseline createProfile(String profileName, String fileName, String eeFileLocation) {
 		try {
-			IApiProfile baseline = null;
+			IApiBaseline baseline = null;
 			if (ApiPlugin.isRunningInFramework()) {
 				baseline = Factory.newApiProfile(profileName);
 			} else if (eeFileLocation != null) {

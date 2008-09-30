@@ -10,13 +10,19 @@
  *******************************************************************************/
 package org.eclipse.pde.api.tools.internal;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.pde.api.tools.internal.model.ApiElement;
+import org.eclipse.pde.api.tools.internal.model.infos.ApiElementInfo;
 import org.eclipse.pde.api.tools.internal.provisional.ApiDescriptionVisitor;
 import org.eclipse.pde.api.tools.internal.provisional.IApiAnnotations;
-import org.eclipse.pde.api.tools.internal.provisional.IApiDescription;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IElementDescriptor;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiDescription;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiElement;
 
 /**
  * A host API description combines descriptions of a host and all its
@@ -24,7 +30,7 @@ import org.eclipse.pde.api.tools.internal.provisional.descriptors.IElementDescri
  * 
  * @since 1.0
  */
-public class CompositeApiDescription implements IApiDescription {
+public class CompositeApiDescription extends ApiElement implements IApiDescription {
 	
 	private IApiDescription[] fDescriptions;
 	
@@ -34,6 +40,7 @@ public class CompositeApiDescription implements IApiDescription {
 	 * @param descriptions
 	 */
 	public CompositeApiDescription(IApiDescription[] descriptions) {
+		super(null, "composite description", IApiElement.COMPONENT);
 		fDescriptions = descriptions;
 	}
 
@@ -101,5 +108,47 @@ public class CompositeApiDescription implements IApiDescription {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @see org.eclipse.pde.api.tools.internal.provisional.model.IApiParent#getChildren()
+	 */
+	public IApiElement[] getChildren() throws CoreException {
+		return null;
+	}
+
+	/**
+	 * @see org.eclipse.pde.api.tools.internal.provisional.model.IApiParent#hasChildren()
+	 */
+	public boolean hasChildren() throws CoreException {
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.pde.api.tools.internal.model.ApiElement#createElementInfo()
+	 */
+	public ApiElementInfo createElementInfo() {
+		return null;
+	}
+
+	/**
+	 * @see org.eclipse.pde.api.tools.internal.provisional.model.IApiElement#exists()
+	 */
+	public boolean exists() {
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.pde.api.tools.internal.provisional.model.IApiElement#getPath()
+	 */
+	public IPath getPath() {
+		return null;
+	}
+
+	/**
+	 * @see org.eclipse.pde.api.tools.internal.provisional.model.IApiElement#getResource()
+	 */
+	public IResource getResource() {
+		return null;
 	}
 }

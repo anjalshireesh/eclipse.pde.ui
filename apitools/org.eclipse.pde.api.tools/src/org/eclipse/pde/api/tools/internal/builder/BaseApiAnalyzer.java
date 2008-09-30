@@ -50,7 +50,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.pde.api.tools.internal.ApiProfileManager;
+import org.eclipse.pde.api.tools.internal.ApiBaselineManager;
 import org.eclipse.pde.api.tools.internal.IApiCoreConstants;
 import org.eclipse.pde.api.tools.internal.PluginProjectApiComponent;
 import org.eclipse.pde.api.tools.internal.comparator.Delta;
@@ -60,10 +60,8 @@ import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.Factory;
 import org.eclipse.pde.api.tools.internal.provisional.IApiAnnotations;
 import org.eclipse.pde.api.tools.internal.provisional.IApiComponent;
-import org.eclipse.pde.api.tools.internal.provisional.IApiDescription;
 import org.eclipse.pde.api.tools.internal.provisional.IApiFilterStore;
 import org.eclipse.pde.api.tools.internal.provisional.IApiMarkerConstants;
-import org.eclipse.pde.api.tools.internal.provisional.IApiProfile;
 import org.eclipse.pde.api.tools.internal.provisional.IApiProfileManager;
 import org.eclipse.pde.api.tools.internal.provisional.IClassFile;
 import org.eclipse.pde.api.tools.internal.provisional.IRequiredComponentDescription;
@@ -75,6 +73,8 @@ import org.eclipse.pde.api.tools.internal.provisional.comparator.DeltaProcessor;
 import org.eclipse.pde.api.tools.internal.provisional.comparator.IDelta;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IElementDescriptor;
 import org.eclipse.pde.api.tools.internal.provisional.descriptors.IReferenceTypeDescriptor;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiDescription;
+import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblemTypes;
 import org.eclipse.pde.api.tools.internal.provisional.search.IApiSearchScope;
@@ -147,7 +147,7 @@ public class BaseApiAnalyzer implements IApiAnalyzer {
 	/* (non-Javadoc)
 	 * @see org.eclipse.pde.api.tools.internal.provisional.builder.IApiAnalyzer#analyzeComponent(org.eclipse.pde.api.tools.internal.builder.BuildState, org.eclipse.pde.api.tools.internal.provisional.IApiProfile, org.eclipse.pde.api.tools.internal.provisional.IApiComponent, java.lang.String[], java.lang.String[], org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public void analyzeComponent(final BuildState state, final IApiFilterStore filterStore, final IApiProfile baseline,	final IApiComponent component,
+	public void analyzeComponent(final BuildState state, final IApiFilterStore filterStore, final IApiBaseline baseline,	final IApiComponent component,
 			final String[] typenames, final String[] changedtypes, IProgressMonitor monitor) {
 		try {
 			SubMonitor localMonitor = SubMonitor.convert(monitor, BuilderMessages.BaseApiAnalyzer_analyzing_api, 6 + (changedtypes == null ? 0 : changedtypes.length));
@@ -214,8 +214,8 @@ public class BaseApiAnalyzer implements IApiAnalyzer {
 		int length = requiredComponents.length;
 		ReexportedBundleVersionInfo info = null;
 		if (length != 0) {
-			IApiProfile profile = component.getProfile();
-			IApiProfile baseline = reference.getProfile();
+			IApiBaseline profile = component.getProfile();
+			IApiBaseline baseline = reference.getProfile();
 			loop: for (int i = 0; i < length; i++) {
 				IRequiredComponentDescription description = requiredComponents[i];
 				if (description.isExported()) {
@@ -1513,8 +1513,8 @@ public class BaseApiAnalyzer implements IApiAnalyzer {
 			return true;
 		}
 
-		IApiProfileManager manager = ApiProfileManager.getManager();
-		IApiProfile profile = manager.getWorkspaceProfile();
+		IApiProfileManager manager = ApiBaselineManager.getManager();
+		IApiBaseline profile = manager.getWorkspaceProfile();
 		if(profile == null) {
 			return false;
 		}
