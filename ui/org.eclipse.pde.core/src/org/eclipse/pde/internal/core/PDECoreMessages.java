@@ -77,8 +77,6 @@ public class PDECoreMessages extends NLS {
 	public static String FeatureInfo_copyright;
 	public static String PluginObject_readOnlyChange;
 	public static String FeatureObject_readOnlyChange;
-	public static String SiteBuildOperation_0;
-
 	public static String SiteObject_readOnlyChange;
 
 	public static String BuildObject_readOnlyException;
